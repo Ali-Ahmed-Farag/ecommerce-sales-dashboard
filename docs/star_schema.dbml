@@ -1,0 +1,55 @@
+Table dim_date {
+  date_key integer [pk, increment]
+  full_date date [unique, not null]
+  day integer
+  month integer
+  quarter integer
+  year integer
+  day_name varchar
+  is_national_holiday boolean
+  is_holiday_week boolean
+}
+
+Table dim_customers {
+  customer_key integer [pk, increment]
+  customer_id varchar [unique, not null]
+  customer_city varchar
+  customer_state varchar
+}
+
+Table dim_products {
+  product_key integer [pk, increment]
+  product_id varchar [unique, not null]
+  product_category_name varchar
+}
+
+Table dim_sellers {
+  seller_key integer [pk, increment]
+  seller_id varchar [unique, not null]
+  seller_city varchar
+  seller_state varchar
+}
+
+Table fact_sales {
+  sales_key integer
+  order_id varchar
+  customer_key integer
+  product_key integer
+  seller_key integer
+  order_purchase_date_key integer
+  order_delivered_date_key integer
+  order_estimated_date_key integer
+  price numeric
+  freight_value numeric
+  total_amount numeric
+  delivery_time_days integer
+  delivery_delay_days integer
+  is_late boolean
+}
+
+Ref purchase_date_role: fact_sales.order_purchase_date_key > dim_date.date_key
+Ref delivered_date_role: fact_sales.order_delivered_date_key > dim_date.date_key
+Ref estimated_date_role: fact_sales.order_estimated_date_key > dim_date.date_key
+Ref customer_role: fact_sales.customer_key > dim_customers.customer_key
+Ref product_role: fact_sales.product_key > dim_products.product_key
+Ref seller_role: fact_sales.seller_key > dim_sellers.seller_key
