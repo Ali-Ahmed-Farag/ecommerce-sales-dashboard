@@ -6,6 +6,7 @@ Table dim_date {
   quarter integer
   year integer
   day_name varchar
+  year_month date
   is_national_holiday boolean
   is_holiday_week boolean
 }

@@ -14,6 +14,7 @@ LATERAL generate_series(bounds.range_start, bounds.range_end, '1 day') AS d
 ON CONFLICT (full_date) DO NOTHING;
 
 UPDATE analytics.dim_date dd SET
+    year_month = date_trunc('month', dd.full_date)::date,
     is_national_holiday = EXISTS (
         SELECT 1 FROM production.holidays h
         WHERE h.holiday_date = dd.full_date AND h.state IS NULL

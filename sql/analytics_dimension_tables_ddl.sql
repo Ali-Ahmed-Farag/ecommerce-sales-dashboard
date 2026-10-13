@@ -12,6 +12,8 @@ CREATE TABLE IF NOT EXISTS analytics.dim_date (
     is_holiday_week BOOLEAN DEFAULT FALSE
 );
 
+ALTER TABLE analytics.dim_date ADD COLUMN IF NOT EXISTS year_month DATE;
+
 CREATE TABLE IF NOT EXISTS analytics.dim_customers (
     customer_key SERIAL PRIMARY KEY,
     customer_id VARCHAR UNIQUE NOT NULL,
