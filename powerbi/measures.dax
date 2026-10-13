@@ -1,0 +1,74 @@
+Total Sales = SUM ( fact_sales[total_amount] )
+
+Order Count = DISTINCTCOUNT ( fact_sales[order_id] )
+
+Average Order Value = DIVIDE ( [Total Sales], [Order Count] )
+
+Total Sales LM =
+CALCULATE (
+    [Total Sales],
+    DATEADD ( 'analytics dim_date'[full_date], -1, MONTH )
+)
+
+MoM Growth % =
+DIVIDE (
+    [Total Sales] - [Total Sales LM],
+    [Total Sales LM]
+)
+
+Average Delivery Days =
+AVERAGEX (
+    ADDCOLUMNS (
+        SUMMARIZE ( fact_sales, fact_sales[order_id] ),
+        "OrderDeliveryDays", CALCULATE ( MAX ( fact_sales[delivery_time_days] ) )
+    ),
+    [OrderDeliveryDays]
+)
+
+Average Delivery Delay =
+AVERAGEX (
+    ADDCOLUMNS (
+        SUMMARIZE ( fact_sales, fact_sales[order_id] ),
+        "OrderDelayDays", CALCULATE ( MAX ( fact_sales[delivery_delay_days] ) )
+    ),
+    [OrderDelayDays]
+)
+
+Late Order Rate =
+VAR OrdersLevel =
+    ADDCOLUMNS (
+        SUMMARIZE ( fact_sales, fact_sales[order_id] ),
+        "IsLate", CALCULATE ( MAXX ( fact_sales, IF ( fact_sales[is_late], 1, 0 ) ) )
+    )
+RETURN
+    DIVIDE (
+        COUNTROWS ( FILTER ( OrdersLevel, [IsLate] = 1 ) ),
+        COUNTROWS ( OrdersLevel )
+    )
+
+Late Order Rate (Delivered Only) =
+VAR DeliveredOrders =
+    FILTER (
+        ADDCOLUMNS (
+            SUMMARIZE ( fact_sales, fact_sales[order_id] ),
+            "IsLate", CALCULATE ( MAXX ( FILTER ( fact_sales, NOT ISBLANK ( fact_sales[is_late] ) ), IF ( fact_sales[is_late], 1, 0 ) ) )
+        ),
+        NOT ISBLANK ( [IsLate] )
+    )
+RETURN
+    DIVIDE (
+        COUNTROWS ( FILTER ( DeliveredOrders, [IsLate] = 1 ) ),
+        COUNTROWS ( DeliveredOrders )
+    )
+
+Average Delivery Days (Holiday) =
+CALCULATE ( [Average Delivery Days], 'analytics dim_date'[is_national_holiday] = TRUE () )
+
+Average Delivery Days (Non-Holiday) =
+CALCULATE ( [Average Delivery Days], 'analytics dim_date'[is_national_holiday] = FALSE () )
+
+Orders Delivered On This Date =
+CALCULATE (
+    DISTINCTCOUNT ( fact_sales[order_id] ),
+    USERELATIONSHIP ( fact_sales[order_delivered_date_key], 'analytics dim_date'[date_key] )
+)
