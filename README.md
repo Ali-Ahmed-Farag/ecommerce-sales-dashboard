@@ -111,7 +111,7 @@ Get-Content sql\analytics_fact_materialized_view.sql | docker exec -i ecommerce_
 Get-Content sql\create_powerbi_role.sql | docker exec -i ecommerce_postgres psql -U postgres -d ecommerce
 ```
 
-Power BI connects as `powerbi_reader` (SELECT on `analytics` only) per `docs/powerbi_manual_steps.md`. Reference values for checking the dashboard are in `docs/powerbi_reference_values.md`. DAX measures (`powerbi/measures.dax`) are UNVERIFIED until compared against those values.
+Power BI connects as `powerbi_reader` (SELECT on `analytics` only) per `docs/powerbi_manual_steps.md`. Reference values for checking the dashboard are in `docs/powerbi_reference_values.md`. 9 measures were verified in Power BI against the SQL reference values in docs/powerbi_reference_values.md (Total Sales, Order Count, AOV, Avg Delivery Days, Avg Delivery Delay, Late Order Rate, Late Order Rate (Delivered Only), Holiday Avg Delivery Days, Non-Holiday Avg Delivery Days). 3 measures (Orders Delivered On This Date, Total Sales LM, MoM Growth %) were verified only by cross-column comparison, not against a SQL reference value.
 
 ## Dashboard screenshots
 
